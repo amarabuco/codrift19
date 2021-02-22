@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content  %}
+<h4>Home</h4>
+<ul class="nav nav-tabs mb-3" id="tabs-tab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tabs-home-tab" data-bs-toggle="tab" data-bs-target="#tabs-home" type="button" role="tab" aria-controls="tabs-home" aria-selected="true">Analysis</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tabs-profile-tab" data-bs-toggle="tab" data-bs-target="#tabs-profile" type="button" role="tab" aria-controls="tabs-profile" aria-selected="false">Forecast</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tabs-contact-tab" data-bs-toggle="tab" data-bs-target="#tabs-contact" type="button" role="tab" aria-controls="tabs-contact" aria-selected="false">Drift</button>
+    </li>
+    </ul>
+    <div class="tab-content" id="tabs-tabContent">
+
+    <div class="tab-pane fade show active" id="tabs-home" role="tabpanel" aria-labelledby="tabs-home-tab">
+        <div  id='analysis'>
+            <form action='analysis'>
+                <select class="form-control" name='country'>
+                    <option value="US">Argentine</option>
+                    <option value="Brazil">Brazil</option>
+                    <option value="US">US</option>
+                </select>
+                <br>
+                <input class="btn btn-primary" type="submit" name="Enviar" value="enviar" />
+            </form>
+        </div>
+
+    </div>
+    <div class="tab-pane fade" id="tabs-profile" role="tabpanel" aria-labelledby="tabs-profile-tab">
+        <div>
+            <form action='forecast'>
+                <select class="form-control" name='country'>
+                    <option value="Brazil">Brazil</option>
+                    <option value="US">US</option>
+                </select>
+                <br>
+                <input class="btn btn-primary" type="submit" name="Enviar" value="enviar" />
+                <br>
+            </form>
+        </div>
+
+    </div>
+    <div class="tab-pane fade" id="tabs-contact" role="tabpanel" aria-labelledby="tabs-contact-tab">
+        <div>
+            <form action='drift' class=''>
+                <select class="form-control" name='country'>
+                    <option value="Brazil">Brazil</option>
+                    <option value="US">US</option>
+                </select>
+                <br>
+                <input class="btn btn-primary" type="submit" name="Enviar" value="enviar" />
+                <br>
+            </form>
+        </div>
+    </div>
+    </div>
+
+
+
+
+{% endblock  %}
