@@ -2,4 +2,71 @@
 
 {% block content  %}
 <h4>Drift</h4>
+
+<div class="card">
+    <div class="card-header">
+        ADWIN Drift
+    </div>
+    <div class="card-body">
+        <div id='vis' style="width:100%; height:35%"></div>    
+    </div>
+  </div>
+  <br>
+
+  <script>
+    
+    var val = {{ out.data  | safe }};
+    
+    var yourVlSpec = {
+        $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
+        description: 'A simple bar chart with embedded data.',
+        data: {
+            values: val
+        },
+        layer: [
+            {
+            mark: {
+            type: "line",
+            },
+        encoding: {
+            x: { field: 'date', "type": "temporal",
+                                "axis": {"format": "%m/%d/%y"} },
+            y: { field: 'count', type: 'quantitative' },
+            color: {
+            condition:{
+                        test: {field:"type" ,"equal": "drift"}
+                    },
+                    size: 0
+        },
+            transform:{
+                filter: 'type == day'
+            },
+            tooltip: [
+                { field: "date", "type": "temporal",
+                                "axis": {"format": "%m/%d/%y"} },
+                { field: "count", type: "quantitative" }                    
+            ]}
+        },
+        {
+        mark: "rule",
+                encoding: {
+                    x: { field: 'date', "type": "temporal",
+                                "axis": {"format": "%m/%d/%y"} },
+                y: { field: 'count', type: 'quantitative',
+                },
+                color: {
+                    value: "red"},
+                size:{
+                    condition:{
+                        test: {field:"type" ,"equal": "drift"}, value:4
+                    },  
+                    value:0
+                }
+                }
+            } 
+        ],
+        width: 'container'
+    };
+    vegaEmbed('#vis', yourVlSpec);
+    </script>
 {% endblock %}
