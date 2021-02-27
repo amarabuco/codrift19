@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 from statsmodels.tsa.stattools import q_stat
 import functions as fn
-app = Flask(__name__)
+application = app = Flask(__name__)
 
 @app.route('/')
 def home():
