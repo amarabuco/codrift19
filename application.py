@@ -15,6 +15,7 @@ def analysis():
     data = fn.get_data(form['country'],form['state'],form['type'])
     trend, seasonal, resid  = fn.decompose(data)
     acf = fn.get_acf(data)
+    pacf = fn.get_pacf(data)
     #q_stat =  fn.lb_test(acf)
     stats = fn.get_stats(data)
     decomp = {}
@@ -27,6 +28,7 @@ def analysis():
         'data' : data,
         'decomp' : decomp, 
         'acf' : acf,
+        'pacf' : pacf,
         'stats': stats
     }
     

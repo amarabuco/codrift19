@@ -77,6 +77,9 @@ def decompose(data):
 def get_acf(data):
     return pd.Series(tsa.acf(ts(data))).reset_index().to_dict(orient='records')
 
+def get_pacf(data):
+    return pd.Series(tsa.pacf(ts(data))).reset_index().to_dict(orient='records')
+
 def ts(data):
     data = pd.DataFrame(data)
     data['date'] = data['date'].apply(lambda x : dt.strptime(x,'%m/%d/%y'))

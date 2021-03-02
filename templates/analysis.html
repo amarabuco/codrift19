@@ -53,6 +53,15 @@ Country: {{form['country']}} - {{form['state']}} | {{form['type']}}
       <br>
       <div class="card">
         <div class="card-header">
+            PACF
+        </div>
+        <div class="card-body">
+            <div id='vis6' style="width:100%; height:35%"></div>
+        </div>
+      </div>
+      <br>
+      <div class="card">
+        <div class="card-header">
             Stats
         </div>
         <div class="card-body">
@@ -104,6 +113,7 @@ vegaEmbed('#vis', yourVlSpec);
 </script>
 <script>
 var val2 = {{ out.acf  | safe }};
+var val3 = {{ out.pacf  | safe }};
 var decomp = {{ out.decomp  | safe }};
 
 var yourVlSpec2 = {
@@ -130,6 +140,7 @@ vegaEmbed('#vis2', yourVlSpec2);
 vegaEmbed('#vis3', drawLine(decomp['trend'],'trend'));
 vegaEmbed('#vis4', drawLine(decomp['seasonal'],'seasonal'));
 vegaEmbed('#vis5', drawLine(decomp['resid'],'resid'));
+vegaEmbed('#vis6', drawBar(val3,'0'));
 
 function drawLine(data,field){
     var yourVlSpec = {
@@ -140,6 +151,25 @@ function drawLine(data,field){
     },
     "mark": {
         "type": "line",
+    },
+    encoding: {
+        x: { field: 'index', type: 'ordinal', axis: null },
+        y: { field: field, type: 'quantitative' }
+    },
+    width: 'container'
+};
+return yourVlSpec;
+}
+
+function drawBar(data,field){
+    var yourVlSpec = {
+    $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
+    description: 'A simple bar chart with embedded data.',
+    data: {
+        values: data
+    },
+    "mark": {
+        "type": "bar",
     },
     encoding: {
         x: { field: 'index', type: 'ordinal', axis: null },
