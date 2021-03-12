@@ -55,7 +55,7 @@
                     {% endfor %}
                 </select>
                 <br>
-                <input class="btn btn-primary" type="submit" name="Enviar" value="enviar" />
+                <input class="btn btn-primary" type="submit"  value="Send" />
             </form>
         </div>
 
@@ -63,6 +63,16 @@
     <div class="tab-pane fade" id="tabs-profile" role="tabpanel" aria-labelledby="tabs-profile-tab">
         <div>
             <form action='forecast'>
+                <label>Type</label>
+                <select class="form-control" name='type'>
+                    <option value="cases">cases</option>
+                    <option value="deaths">deaths</option>
+                    <option value="cases_br">cases (brazil states)</option>
+                    <option value="cases_br">deaths (brazil states)</option>
+                    <option value="vaccines_br">vaccines (brazil states)</option>
+                </select>
+                <br>
+                <label>Country</label>
                 <select class="form-control" name='country'>
                     <option value="Brazil">Brazil</option>
                     {% for c in countries.values() %}
@@ -72,7 +82,24 @@
                     {% endfor %}
                 </select>
                 <br>
-                <input class="btn btn-primary" type="submit" name="Enviar" value="enviar" />
+                <label>Brazilian States</label>
+                <select class="form-control" name='state'>
+                    <option value="-">-</option>
+                    {% for s in states.values() %}
+                    <option value="{{s}}">{{s}}</option>
+                    {% endfor %}
+                </select>
+                <br>
+                <label>Days ahead</label>
+                <select class="form-control" name='time'>
+                    <option value="7">7</option>
+                    <option value="14">14</option>
+                    <option value="30">30</option>
+                    <option value="60">60</option>
+                    <option value="90">90</option>
+                </select>
+                <br>
+                <input class="btn btn-primary" type="submit"  value="Send" />
                 <br>
             </form>
         </div>
@@ -108,7 +135,7 @@
                     <option value="{{s}}">{{s}}</option>
                     {% endfor %}
                 </select>
-                <br>                <input class="btn btn-primary" type="submit" name="Enviar" value="enviar" />
+                <br>                <input class="btn btn-primary" type="submit"  value="Send" />
                 <br>
             </form>
         </div>

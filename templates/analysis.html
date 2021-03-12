@@ -3,7 +3,7 @@
 {% block content  %}
 <h4>Analysis</h4>
 
-Country: {{form['country']}} - {{form['state']}} | {{form['type']}}
+Country: {{form['country']}} {% if form['state'] != '-' %} - {{form['state']}} {% endif %} | {{form['type']}}
 
 <div>
     <div class="card">
@@ -12,6 +12,9 @@ Country: {{form['country']}} - {{form['state']}} | {{form['type']}}
         </div>
         <div class="card-body">
             <div id='vis' style="width:100%; height:35%"></div>    
+        </div>
+        <div class="card-footer">
+            Total =  {{out.sum | safe}}
         </div>
       </div>
       <br>

@@ -1,12 +1,27 @@
 import json
+import math
+import calendar
+from datetime import timedelta as delta
 from datetime import datetime as dt
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 import statsmodels.stats as sm_stats
 import statsmodels.tsa.api as tsa
-from river.drift import ADWIN
+from collections import OrderedDict
 
+from river import evaluate
+from river import linear_model
+from river import metrics
+from river import compose
+from river import optim
+from river import preprocessing
+from river import datasets
+from river import stream
+from river import time_series
+from river import drift
+
+from river.drift import ADWIN
 
 
 def get_data(country, state, type):
@@ -78,13 +93,24 @@ def get_acf(data):
     return pd.Series(tsa.acf(ts(data))).reset_index().to_dict(orient='records')
 
 def get_pacf(data):
-    return pd.Series(tsa.pacf(ts(data))).reset_index().to_dict(orient='records')
+    return pd.Series(tsa.pacf_ols(ts(data))).reset_index().to_dict(orient='records')
 
 def ts(data):
     data = pd.DataFrame(data)
     data['date'] = data['date'].apply(lambda x : dt.strptime(x,'%m/%d/%y'))
     data = data.set_index('date').asfreq('D')
     return data
+
+def tsr(data,freq):
+    data = pd.DataFrame(data)
+    data['date'] = data['date'].apply(lambda x : dt.strptime(x,'%m/%d/%y'))
+    base = data.to_dict(orient='records')
+    data = [({'date': d['date']}, d['count']) for d in base]
+    return data
+
+def sum(data):
+    data = pd.DataFrame(data)
+    return "{:,}".format( data['count'].sum() )
 
 def get_stats(data):
     stats = sm_stats.descriptivestats.describe(ts(data))
@@ -102,6 +128,98 @@ def lb_test(acf):
     print(tsa.stattools.q_stat(pd.DataFrame(acf)[0], n))
     return tsa.stattools.q_stat(pd.DataFrame(acf)[0], n)
     return True
+
+def get_model():
+    extract_features = compose.TransformerUnion(
+    get_ordinal_date,
+    get_day_distances
+    )
+    
+    model = (
+     extract_features |
+     time_series.SNARIMAX(
+        p=0,
+        d=0,
+        q=0,
+        m=7,
+        sp=3,
+        sq=0,
+        regressor=(
+            preprocessing.StandardScaler() |
+            linear_model.LinearRegression(
+                intercept_init=0,
+                intercept_lr=0.3,
+                optimizer=optim.SGD(0.01)
+                )
+            )
+        )
+    )
+    return model
+
+def get_metric(period):
+    return metrics.Rolling(metrics.MAE(), period)
+
+def train(data):
+    model = get_model()
+    metric = get_metric(7)
+    predictions = []
+
+    for x, y in data:
+        y_pred = model.forecast(horizon=1, xs=[x])
+        model = model.learn_one(x,y)
+        metric = metric.update(y, y_pred[0])
+        predictions.append(int(y_pred[0]))
+    
+    return model, predictions, metric
+
+def forecast(data, time):
+    X = tsr(data,'D')
+    df = pd.DataFrame(data)
+    model, pred, metr  = train(X)
+    
+    df['pred'] = pd.Series(pred)
+    df['err'] = (df['count'] - df['pred'])/df['count']
+    df.fillna(0, inplace=True)
+    tdf = df[['date','count']].copy()
+    tdf['type'] = 'hist'
+    pdf = df[['date','pred']].copy()
+    pdf.columns=['date','count']
+    pdf['type'] = 'fit'
+    cdf = tdf.append(pdf)
+    
+    horizon = int(time)
+    future = [
+        {'date': X[-1][0]['date']+delta(days=d)}
+        for d in range(1, horizon + 1)
+    ]
+    future_data = model.forecast(horizon=horizon, xs=future)
+    f = [{'date':x['date'], 'forecast':y_pred} for x, y_pred in zip(future,future_data)]
+    fdf = pd.DataFrame(f)
+    fdf['date'] = fdf['date'].apply(lambda x : x.strftime('%m/%d/%y'))
+    fdf.columns=['date','count']
+    fdf['type'] = 'future'
+    cdf = cdf.append(fdf)
+    fdf['diff'] = fdf['count'].pct_change()
+    fdf = fdf.fillna(0)
+    fdf['sum'] = fdf['count'].cumsum(axis=0)
+        
+    return df.to_dict(orient='records'), cdf.to_dict(orient='records'), fdf.to_dict(orient='records'), metr
+
+def get_day_distances(x):
+    #print(x)
+    distances = {
+        calendar.day_name[day]: math.exp(-(x['date'].weekday() - day) ** 2)
+        for day in range(0, 7)
+    }
+    #print(distances)
+    return distances
+
+def get_ordinal_date(x):
+    #print(x)
+    ordinal_date = {'ordinal_date': x['date'].toordinal()}
+    #print(ordinal_date)
+    return ordinal_date
+
 
 def adwin(data):
     adwin = ADWIN()

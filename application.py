@@ -13,6 +13,7 @@ def home():
 def analysis():
     form = request.args
     data = fn.get_data(form['country'],form['state'],form['type'])
+    sum = fn.sum(data)
     trend, seasonal, resid  = fn.decompose(data)
     acf = fn.get_acf(data)
     pacf = fn.get_pacf(data)
@@ -29,14 +30,26 @@ def analysis():
         'decomp' : decomp, 
         'acf' : acf,
         'pacf' : pacf,
-        'stats': stats
+        'stats': stats,
+        'sum':sum
     }
     
     return render_template('analysis.html', out=out, form=form)
 
 @app.route('/forecast', methods=["GET"])
 def forecast():
-    return render_template('forecast.html')
+    form = request.args
+    data = fn.get_data(form['country'],form['state'],form['type'])
+    h, c, f, m = fn.forecast(data,form['time'])
+    
+    
+    out = {
+        'data' : data,
+        'forecast' : h,
+        'chart': c,
+        'future': f
+    }
+    return render_template('forecast.html', out=out, form=form)
 
 @app.route('/drift', methods=["GET"])
 def drift():
