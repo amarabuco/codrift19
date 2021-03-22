@@ -51,7 +51,7 @@ def get_data(country, state, type):
             data = state[['date','newCases']]
             
         elif type == 'deaths_br':
-            data = state[['date','deathsMS']]
+            data = state[['date','newDeaths']]
         elif type == 'vaccines_br':
             data = state[['date','vaccinated']].dropna()
             data['vaccinated'] = data['vaccinated'].diff().fillna(0)
